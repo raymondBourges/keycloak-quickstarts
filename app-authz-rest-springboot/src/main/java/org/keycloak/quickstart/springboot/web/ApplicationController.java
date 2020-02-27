@@ -18,9 +18,14 @@
  */
 package org.keycloak.quickstart.springboot.web;
 
+import org.keycloak.AuthorizationContext;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.idm.authorization.Permission;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Igor</a>
@@ -29,26 +34,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApplicationController {
 
     @RequestMapping(value = "/api/resourcea", method = RequestMethod.GET)
-    public String handleResourceA() {
-        return createResponse();
+    public String handleResourceA(HttpServletRequest request) {
+        return createResponse(request);
     }
 
     @RequestMapping(value = "/api/resourceb", method = RequestMethod.GET)
-    public String handleResourceB() {
-        return createResponse();
+    public String handleResourceB(HttpServletRequest request) {
+        return createResponse(request);
     }
 
     @RequestMapping(value = "/api/premium", method = RequestMethod.GET)
-    public String handlePremiumResource() {
-        return createResponse();
+    public String handlePremiumResource(HttpServletRequest request) {
+        return createResponse(request);
     }
 
     @RequestMapping(value = "/api/admin", method = RequestMethod.GET)
-    public String handleAdminResource() {
-        return createResponse();
+    public String handleAdminResource(HttpServletRequest request) {
+        return createResponse(request);
     }
 
-    private String createResponse() {
+    private String createResponse(HttpServletRequest request) {
+        KeycloakSecurityContext keycloakSecurityContext =
+                (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        AuthorizationContext authzContext =
+                keycloakSecurityContext.getAuthorizationContext();
+        for (Permission permission : authzContext.getPermissions()) {
+            System.out.println(permission);
+        }
         return "Access Granted";
     }
 }
